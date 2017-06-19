@@ -65,6 +65,8 @@ def settings_menu(q={}):
         return set_local_dir(q[1])
     if q[0] == "setcache":
         return set_cache(q[1])
+    if q[0] == "ADSToken":
+        return set_token(q[1])
 
 def main_settings():
     """Returns the main settings menu"""
@@ -104,7 +106,39 @@ def main_settings():
         )       
     )
 
+    # Storing ADS token
+    menuitems.append(
+         alp.Item(
+             title       = "Set ADS API token",
+             subtitle    = "Sign up ADS for the API token in https://ui.adsabs.harvard.edu/#user/settings/token",
+             valid       = "no",
+             autocomplete= "settings" + alfred_delim + "ADSToken" + alfred_delim
+         )
+    )
+
     return menuitems
+
+def set_token(q=""):
+    if q=="":
+        return alp.Item(
+            title    = "Begin typing to set the ADS API token",
+            subtitle = "Current value is " + get_token_setting(),
+            valid    = "no"
+        )
+    else:
+        return alp.Item(
+            title       = "Set ADS API token to " + q,
+            subtitle    = "Current value is " + get_token_setting(),
+            arg         = encode_arguments(
+                type         = "setting",
+                value        = {'token':q},
+                notification = {
+                    'title':'Setting changed',
+                    'text' :'New API token is'+q
+                }
+            )
+        )
+
 
 def set_cache(q=""):
     if q=="":
@@ -182,6 +216,17 @@ def get_local_dir():
 def get_cache_setting():
     return settings.get("cache", default=7)
 
+def get_token_setting():
+    return settings.get("token", default="")
+
+#def get_token_rate():
+#    if get_token_setting() == "0" :
+#        return 0
+#
+#    import ads
+#    ads.config.token = get_token_setting()
+#    
+#    return settings.get("token", default="")
 #
 # The main functions are below.
 #
@@ -277,6 +322,43 @@ def typing_menu(search=""):
         autocomplete = search + alfred_delim
     )] + prevsearches
 
+def typing_ads_menu(search=""):
+    import os
+    import base64
+
+    searchlower = search.lower().strip()
+    words       = searchlower.split(" ")
+
+    # List all previous searches (i.e. all cache files)
+    prevsearches = []
+    for f in os.listdir(alp.storage()):
+        filename, ext = os.path.splitext(f)
+        if ext == ".cache":
+            prevsearch      = base64.urlsafe_b64decode(filename)
+            prevsearchlower = prevsearch.lower()
+            # Search for the words in the input query
+            if searchlower == prevsearchlower:
+                continue
+            match = True
+            for word in words:
+                if word not in prevsearchlower:
+                    match = False
+                    break
+            if not match:
+                continue
+            prevsearches.append(alp.Item(
+                title        = "'" + prevsearch + "'",
+                subtitle     = "Recall stored search '" + prevsearch + "'",
+                valid        = "no",
+                autocomplete = prevsearch + alfred_delim
+            ))
+    return [alp.Item(
+        title        = "Search for '" + search + "'",
+        subtitle     = "Search for the current query",
+        valid        = "no",
+        autocomplete = search + alfred_delim
+    )] + prevsearches
+
 def inspire_search(search=""):
     """Searches Inspire."""
 
@@ -346,6 +428,107 @@ def inspire_search(search=""):
             )
         ))
 
+    # And return feedback for Alfred.
+    return alpitems
+
+def ads_search(search=""):
+    """Searches ADS."""
+
+    import time
+    import shutil
+    import os
+    import json
+    import base64
+
+    # Path for the temporary bibtex results.
+    tempf = os.path.join(alp.cache(),"results.bib")
+    # Path for the temporary latest parsed results.
+    lastf = os.path.join(alp.cache(),"lastresults.json")
+    # Path for the permanent cache of the query. Note the urlsafe encode.
+    savef = os.path.join(alp.storage(),base64.urlsafe_b64encode(search) + ".cache")
+
+    # Check if cache file exists, and if it's not older than a week.
+    try:
+        # Get the modificiation time of the cache file.
+        mt = os.path.getmtime(savef)
+        # Get the current time.
+        ct = time.time()
+        # Is the difference in time less a number of days? Then use it as cache.
+        usecache =  ct - mt < ( get_cache_setting() * 86400 )
+    except:
+        # If the above fails (e.g. when the file doesn't exist), don't use cache.
+        usecache = False
+
+    if usecache:
+        # Read the cache file and parse the JSON to a dictionary.
+        with open(savef,"r") as f:
+            bibitems = json.load(f)
+    else:
+        from bibtexparser.bparser import BibTexParser
+     #   from pyinspire import pyinspire
+#        import ads.sandbox as ads
+        import ads
+        import urllib
+
+        ads.config.token = get_token_setting()
+        # Query ADS and get the result in form of BibTeX.
+        alpitems = []
+        alpitems.append(alp.Item(
+            title       = "Open ADS for search",
+            subtitle    = "Search on the ADS website for '" + search + "'",
+            arg=encode_arguments(
+                type    = 'url',
+                value   = "http://ui.adsabs.harvard.edu/#search/" + urllib.urlencode({'q':search})
+#                value   = search
+            )
+        ))
+       # papers in ads
+        try:
+            ppp = (ads.SearchQuery(q=search,fl=['bibcode','bibtex'],rows=8))
+            # get the bibtex
+            bibtex = ""
+            bibcode = []
+            for pp in ppp:
+                bibcode = bibcode + [pp.bibcode]
+#                bibtex = bibtex + ads.ExportQuery(bibcode).execute()
+                bibtex = bibtex + pp.bibtex.encode("utf-8")
+
+    #        bibtex = pyinspire.get_text_from_inspire(search,"bibtex").encode('utf-8')
+            # Write the BibTeX to a file.
+            with open(tempf,"w") as f:
+                f.write(bibtex)
+            # Parse the BibTeX from the same file.
+            with open(tempf,"r") as f:
+                bp = BibTexParser(f)
+            # Get the bibtex as a dictionary and remove any newlines.
+            bibitems = map(remove_newlines,bp.get_entry_list())
+            # Save the dictionary to the cache file.
+            with open(savef,"w") as f:
+                json.dump(bibitems,f)
+        except:
+#            import urllib
+            alpitems = []
+            alpitems.append(alp.Item(
+                title       = "Rate limit was exceed",
+                subtitle    = "Search on the ADS website for '" + search + "'",
+                arg=encode_arguments(
+                    type    = 'url',
+                    value   = "http://ui.adsabs.harvard.edu/#search/" + urllib.urlencode({'q':search})
+#                value   = search
+                )
+            ))
+            return alpitems
+
+       # Copy the cache file to the file contained the lastest results.
+    shutil.copy(savef,lastf)
+
+        # Parse the result dictionary to alp items.
+#    alpitems = []
+    for bibitem in bibitems:
+        alpitems.append(bibitem_to_alpitem(bibitem,search))
+
+    # No results? Then tell the user, and offer to search the ADS website.
+#    if len(alpitems) == 0:
     # And return feedback for Alfred.
     return alpitems
 
@@ -486,6 +669,144 @@ def context_menu(key="",search=""):
     # And return.
     return actions
 
+def context_ads_menu(key="",search=""):
+    """Returns the context menu for ads result item"""
+
+    # This method takes only the key (id) of the actioned item as an argument.
+    # So we need to load the last results, and find the item of that key.
+    # ADS should have adsurl
+
+    import os
+    import json
+    import time
+
+    bid = alp.bundle() + str(time.time()) 
+
+    # Load the parsed results from the latest Inspire search.
+    lastf = os.path.join(alp.cache(),"lastresults.json")
+    with open(lastf,"r") as f:
+        items = json.load(f)
+
+    # Lookup the item from the results.
+    for i in items:
+        if 'id' in i:
+            if i['id'] == key:
+                item = i
+                break
+
+    # Populate the context menu action list.
+    actions = []
+
+    # Link to the ADS record page.
+    # if 'adsurl' in item:
+    actions.append(
+        alp.Item(
+            title    = item['title'],
+            subtitle = "Open ADS record page in browser",
+            arg      = encode_arguments(type='url',value=item['adsurl']),
+            uid      = bid+"adsrecord"
+        )
+    )
+
+    # Author search.
+    authors = item['author'].split(" and ")
+    if len(authors) == 1:
+        actions.append(
+            alp.Item(
+                title        = item['author'],
+                subtitle     = "Find more papers of author",
+                valid        = "no",
+                autocomplete = "author: "+ item['author'] + alfred_delim,
+                uid          = bid + "authors"
+            )
+        )
+    else:
+        actions.append(
+            alp.Item(
+                title        = authors_to_lastnames(item['author']),
+                subtitle     = "Find more papers of authors",
+                valid        = "no",
+                autocomplete = search + alfred_delim + key + alfred_delim + item['author'] + alfred_delim,
+                uid          = bid + "authors"
+            )
+        )   
+
+    # Link to resolve the DOI.
+    if 'doi' in item:
+        url = "http://dx.doi.org/" + item['doi']
+        actions.append(
+            alp.Item(
+                title    = bibitem_to_journaltext(item),
+                subtitle = "Open DOI in browser",
+                arg      = encode_arguments(type='url',value=url),
+                uid      = bid + "doi"
+            )
+        )
+
+    # Next, the option to open the PDF from arXiv.
+    if 'eprint' in item:
+        #if item['archiveprefix'] != 'arXiv':
+        #    urlprefix = item['archiveprefix'] + "/"
+        #    prefix = urlprefix
+        #else:
+        urlprefix = ""
+        prefix = 'arXiv:'
+        url = "http://arxiv.org/pdf/" + urlprefix + item['eprint']
+        filename = os.path.join(
+            get_local_dir(),
+            (item['eprint'] + " " + authors_to_lastnames(item['author']) + " - " + item['title'] + '.pdf').replace('/','_').replace(':','_')
+        )
+        actions.append(
+            alp.Item(
+                title    = prefix + item['eprint'],
+                subtitle = "Download and open PDF",
+                arg      = encode_arguments(type='getpdf',value=[url,filename]),
+                uid      = bid + "arxivpdf"
+            )
+        )
+
+    # The option to lookup references.
+    actions.append(
+        alp.Item(
+            title        = "References",
+            subtitle     = "Find papers that this paper cites",
+            valid        = "no",
+            autocomplete = "references(bibcode:" + key + ")" + alfred_delim,
+            uid          = bid + "refs"
+        )
+    )
+
+    # The option to lookup citations.
+    actions.append(
+        alp.Item(
+            title        = "Citations",
+            subtitle     = "Find papers that cite this paper",
+            valid        = "no",
+            autocomplete = "citations(bibcode:" + key + ")" + alfred_delim,
+            uid          = bid + "cites"
+        )
+    )
+
+    # The option to copy the bibtex of the current item to the clipboard.
+    actions.append(
+        alp.Item(
+            title       = "BibTeX",
+            subtitle    = "Copy BibTeX to clipboard",
+            uid         = bid+"bibtex",
+            arg         = encode_arguments(
+                type         = 'clipboard',
+                value        = bibitem_to_bibtex(item),
+                notification = {
+                    'title':'Copied BibTeX to clipboard',
+                    'text':'BibTeX for ' + key + ' has been copied to the clipboard'
+                }
+            )
+        )
+    )
+
+    # And return.
+    return actions
+
 
 def author_menu(authors=""):
     """Returns an Alfred context menu populated with authors"""
@@ -508,6 +829,34 @@ def author_menu(authors=""):
                 subtitle     = "Find more papers of author",
                 valid        = "no",
                 autocomplete = "find a "+ a + alfred_delim
+            )
+        actions.append(aitem)
+
+    # And return.
+    return actions
+
+def author_ads_menu(authors=""):
+    """Returns an Alfred context menu populated with authors"""
+
+    # Split the string into single authors.
+    authorlist  = authors.split(" and ")
+
+    # Populate the action list.
+    actions = []
+    for a in authorlist:
+        if a == "others":
+            aitem = alp.Item(
+                title    = "More authors",
+                subtitle = "Open the ADS page for all authors of the paper",
+                arg      = encode_arguments(type='url',value=bibid)
+                # ask author about bibid
+            )
+        else:
+            aitem = alp.Item(
+                title        = a,
+                subtitle     = "Find more papers of author",
+                valid        = "no",
+                autocomplete = "author:"+ a + alfred_delim
             )
         actions.append(aitem)
 
@@ -616,3 +965,46 @@ def encode_arguments(type="clipboard",value="",notification={}):
         'value': value,
         'notification': notification
     }))
+
+def ads_main(q=""):
+    """Refers to ads search."""
+    
+    search      = q.decode('utf-8')
+    num_delims  = search.count(alfred_delim)
+    searchsplit = search.split(alfred_delim)
+    
+    # If the user hasn't typed anything, give some instructions and the
+    # option to open the settings menu.
+    if (get_token_setting()==''):
+        result = [alp.Item(
+            title            = "No ADS API token",
+            subtitle         = "Please set API token by ADS setting",
+            valid            = "no",
+            autocomplete     = "settins" + alfred_delim)]
+
+    if search.strip() == "":
+        result = [alp.Item(title        = "Search ADS",
+                           subtitle     = "Begin typing to search ADS",
+                           valid        = "no",
+                           autocomplete = ""),
+                  alp.Item(title        = "Settings",
+                           subtitle     = "Change ADS's settings",
+                           valid        = "no",
+                           autocomplete = "settings" + alfred_delim)]
+    # Settings menu.
+    elif searchsplit[0] == "settings":
+        result = settings_menu(searchsplit[1:])
+    # If the search has no delimiters the user is still typing the query:
+    elif num_delims == 0:
+        result = typing_ads_menu(searchsplit[0])
+    # Has the string one delimiter? Then perform a regular Inspire search.
+    elif num_delims == 1:
+        result = ads_search(searchsplit[0].strip())
+    # Are there two delimiters? Then it's a context menu.
+    elif num_delims == 2:
+        result = context_ads_menu(searchsplit[1],searchsplit[0])
+    # Three delimiters? Then it's an author search menu.
+    elif num_delims == 3:
+        result = author_ads_menu(searchsplit[2])
+    
+    return alp.feedback(result)
