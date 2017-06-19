@@ -22,6 +22,8 @@ Installation
 Download the [latest release](https://github.com/TuahZh/adsinspire/releases/)
 and open it (from the Finder or from Alfred) to import it in Alfred.
 
+To use ADS in app search, you need to get the API token from [ADS](https://ui.adsabs.harvard.edu/#user/settings/token), and use `ads setting` to set API token.
+
 Usage
 -----
 
