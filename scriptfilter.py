@@ -74,13 +74,13 @@ def main_settings():
     # Option to clear the cache.
     menuitems.append(
         alp.Item(
-            title    = "Clear INSPIRE cache",
-            subtitle = "Clears all cached INSPIRE searches",
+            title    = "Clear cache",
+            subtitle = "Clears all cached searches",
             arg      = encode_arguments(
                 type         = "clearcache",
                 notification = {
                     'title':'Cache cleared',
-                    'text':'All saved INSPIRE results have been cleared'
+                    'text':'All saved results have been cleared'
                 }
             )
         )
@@ -90,7 +90,7 @@ def main_settings():
     menuitems.append(
         alp.Item(
             title        = "Change cache setting",
-            subtitle     = "Set the time INSPIRE searches are cached",
+            subtitle     = "Set the time searches are cached",
             valid        = "no",
             autocomplete = "settings" + alfred_delim + "setcache" + alfred_delim
         )       
@@ -980,7 +980,7 @@ def ads_main(q=""):
             title            = "No ADS API token",
             subtitle         = "Please set API token by ADS setting",
             valid            = "no",
-            autocomplete     = "settins" + alfred_delim)]
+            autocomplete     = "settings" + alfred_delim)]
 
     if search.strip() == "":
         result = [alp.Item(title        = "Search ADS",
@@ -1008,3 +1008,18 @@ def ads_main(q=""):
         result = author_ads_menu(searchsplit[2])
     
     return alp.feedback(result)
+
+def ads_open(q=""):
+    import alp
+    import urllib
+    
+    item = alp.Item(
+            title       = "Open ADS for search",
+            subtitle    = "Search on the ADS website for '" + q + "'",
+            arg=encode_arguments(
+                type    = 'url',
+                value   = "http://ui.adsabs.harvard.edu/#search/" + urllib.urlencode({'q':q})
+            )
+    )
+
+    return alp.feedback(item)
