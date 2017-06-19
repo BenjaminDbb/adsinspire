@@ -66,7 +66,7 @@ in `ainspire`'s settings) and open it.
 By only entering the `adsinspire` keyword (which is `insp` or `ads` by default), it is possible
 to go to `adsinspire`'s settings:
 
-![no query](https://raw.github.com/teake/ainspire/master/screenshots/no_query.png)
+![no query](https://raw.github.com/TuahZh/adsinspire/master/screenshots/no_query.png)
 
 There, the following can be changed:
 
