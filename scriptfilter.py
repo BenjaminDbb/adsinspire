@@ -835,7 +835,7 @@ def author_menu(authors=""):
     # And return.
     return actions
 
-def author_ads_menu(authors=""):
+def author_ads_menu(key="",authors=""):
     """Returns an Alfred context menu populated with authors"""
 
     # Split the string into single authors.
@@ -843,12 +843,13 @@ def author_ads_menu(authors=""):
 
     # Populate the action list.
     actions = []
+    import urllib
     for a in authorlist:
         if a == "others":
             aitem = alp.Item(
                 title    = "More authors",
                 subtitle = "Open the ADS page for all authors of the paper",
-                arg      = encode_arguments(type='url',value=bibid)
+                arg      = encode_arguments(type='url',value="http://adsabs.harvard.edu/abs/" + key)
                 # ask author about bibid
             )
         else:
@@ -1005,7 +1006,7 @@ def ads_main(q=""):
         result = context_ads_menu(searchsplit[1],searchsplit[0])
     # Three delimiters? Then it's an author search menu.
     elif num_delims == 3:
-        result = author_ads_menu(searchsplit[2])
+        result = author_ads_menu(searchsplit[1],searchsplit[2])
     
     return alp.feedback(result)
 
