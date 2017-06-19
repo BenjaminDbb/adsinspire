@@ -120,9 +120,9 @@ Dependencies
   * werkzeug
 
 
-If you check out the source from Git, you need to include these libaries in the `ainspire`
+If you check out the source from Git, you need to include these libaries in the `adsinspire`
 directory root in order obtain a working Alfred workflow. When you download the workflow from
-the [releases page](https://github.com/teake/ainspire/releases), this is not necessary.
+the [releases page](https://github.com/TuahZh/adsinspire/releases), this is not necessary.
 
 License
 -------
