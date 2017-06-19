@@ -523,7 +523,7 @@ def ads_search(search=""):
     shutil.copy(savef,lastf)
 
         # Parse the result dictionary to alp items.
-#    alpitems = []
+    alpitems = []
     for bibitem in bibitems:
         alpitems.append(bibitem_to_alpitem(bibitem,search))
 
