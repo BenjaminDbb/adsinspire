@@ -103,6 +103,7 @@ ADS searching is slow, and the rate limit is too easy to be exceeded. A browser 
 Next
 ------------
 * Optimize ADS search (API and the decode from Bibtex)
+* Optimize local search for ADS search cache
 * Make ads independent from the original one
 * Maybe give up Bibtex for ADS search
 * repaire 'others' author problem
