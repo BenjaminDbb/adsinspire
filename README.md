@@ -1,3 +1,9 @@
+Quick Start:
+=========
+Use "adsw" + the words you are searching 
+and check the results in your web browser
+For example, "adsw ^Li 2000"
+
 adsinspire
 ========
 
