@@ -3,9 +3,24 @@
 <plist version="1.0">
 <dict>
 	<key>bundleid</key>
-	<string>hep.ainspire</string>
+	<string></string>
+	<key>category</key>
+	<string>Internet</string>
 	<key>connections</key>
 	<dict>
+		<key>0741041B-DB77-4ADD-B040-5EC8427232CE</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>0AF6204E-C31F-4958-AB87-4A3585C12F18</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>0AF6204E-C31F-4958-AB87-4A3585C12F18</key>
 		<array>
 			<dict>
@@ -15,6 +30,21 @@
 				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>29A5C243-CD35-466F-9B60-31EDB5D1072D</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>0AF6204E-C31F-4958-AB87-4A3585C12F18</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
 			</dict>
 		</array>
 		<key>417EDFE4-EEA3-4586-BACB-72B5CD1488FA</key>
@@ -26,6 +56,8 @@
 				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
+				<key>vitoclose</key>
+				<false/>
 			</dict>
 		</array>
 		<key>4765E242-93FF-46C4-87F9-224040053329</key>
@@ -37,28 +69,40 @@
 				<integer>0</integer>
 				<key>modifiersubtext</key>
 				<string></string>
+				<key>vitoclose</key>
+				<false/>
 			</dict>
 		</array>
 	</dict>
 	<key>createdby</key>
-	<string>Teake Nutma</string>
+	<string></string>
 	<key>description</key>
-	<string>Search INSPIRE for papers</string>
+	<string>Search INSPIRE and ADS for papers</string>
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
-	<string>ainspire v1.1</string>
+	<string>adsinspire</string>
 	<key>objects</key>
 	<array>
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
 				<key>argumenttype</key>
 				<integer>1</integer>
 				<key>escaping</key>
 				<integer>36</integer>
 				<key>keyword</key>
 				<string>insp</string>
+				<key>queuedelaycustom</key>
+				<integer>1</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<false/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
 				<key>runningsubtext</key>
 				<string>Searching ...</string>
 				<key>script</key>
@@ -66,6 +110,10 @@
 
 scriptfilter.main("{query}")
 </string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
 				<key>subtext</key>
 				<string>Search INSPIRE for papers</string>
 				<key>title</key>
@@ -80,64 +128,39 @@ scriptfilter.main("{query}")
 			<key>uid</key>
 			<string>417EDFE4-EEA3-4586-BACB-72B5CD1488FA</string>
 			<key>version</key>
-			<integer>0</integer>
+			<integer>2</integer>
 		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>escaping</key>
-				<integer>36</integer>
-				<key>script</key>
-				<string>import processscript
-
-processscript.main("{query}")</string>
-				<key>type</key>
-				<integer>3</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>0AF6204E-C31F-4958-AB87-4A3585C12F18</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>escaping</key>
-				<integer>36</integer>
-				<key>script</key>
-				<string>set temp to "{query}"
-if temp is not "" then
-	tell application "Alfred 2" to search temp &amp; " ► "
-end if</string>
-				<key>type</key>
-				<integer>6</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.output.script</string>
-			<key>uid</key>
-			<string>66C33713-DA10-4119-A3C8-750DB7D93EAA</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
 				<key>argumenttype</key>
 				<integer>0</integer>
 				<key>escaping</key>
 				<integer>36</integer>
 				<key>keyword</key>
 				<string>paper</string>
+				<key>queuedelaycustom</key>
+				<integer>1</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<false/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
 				<key>runningsubtext</key>
 				<string>Searching ...</string>
 				<key>script</key>
 				<string>import scriptfilter
 
 scriptfilter.local_search("{query}")</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
 				<key>subtext</key>
-				<string>Search papers locally stored by ainspire</string>
+				<string>Search papers locally stored by adsinspire</string>
 				<key>title</key>
 				<string>Search papers</string>
 				<key>type</key>
@@ -150,35 +173,198 @@ scriptfilter.local_search("{query}")</string>
 			<key>uid</key>
 			<string>4765E242-93FF-46C4-87F9-224040053329</string>
 			<key>version</key>
-			<integer>0</integer>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>36</integer>
+				<key>script</key>
+				<string>import processscript
+
+processscript.main("{query}")</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>0AF6204E-C31F-4958-AB87-4A3585C12F18</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>36</integer>
+				<key>script</key>
+				<string>set temp to "{query}"
+if temp is not "" then
+	tell application "Alfred 3" to search temp &amp; " ► "
+end if</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>6</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>66C33713-DA10-4119-A3C8-750DB7D93EAA</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>36</integer>
+				<key>keyword</key>
+				<string>ads</string>
+				<key>queuedelaycustom</key>
+				<integer>1</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<false/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Searching ...</string>
+				<key>script</key>
+				<string>import scriptfilter
+
+scriptfilter.ads_main("{query}")</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string>Search SAO/NASA Astrophysics Data System</string>
+				<key>title</key>
+				<string>Search ADS</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>29A5C243-CD35-466F-9B60-31EDB5D1072D</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>36</integer>
+				<key>keyword</key>
+				<string>adsw</string>
+				<key>queuedelaycustom</key>
+				<integer>1</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<false/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Searching ...</string>
+				<key>script</key>
+				<string>import scriptfilter
+
+scriptfilter.ads_open("{query}")</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string>Search SAO/NASA Astrophysics Data System</string>
+				<key>title</key>
+				<string>Search ADS in webbrowser</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>0741041B-DB77-4ADD-B040-5EC8427232CE</string>
+			<key>version</key>
+			<integer>2</integer>
 		</dict>
 	</array>
 	<key>readme</key>
 	<string>See https://github.com/teake/ainspire for more information.</string>
 	<key>uidata</key>
 	<dict>
+		<key>0741041B-DB77-4ADD-B040-5EC8427232CE</key>
+		<dict>
+			<key>xpos</key>
+			<integer>140</integer>
+			<key>ypos</key>
+			<integer>530</integer>
+		</dict>
 		<key>0AF6204E-C31F-4958-AB87-4A3585C12F18</key>
 		<dict>
+			<key>xpos</key>
+			<integer>510</integer>
 			<key>ypos</key>
-			<real>160</real>
+			<integer>220</integer>
+		</dict>
+		<key>29A5C243-CD35-466F-9B60-31EDB5D1072D</key>
+		<dict>
+			<key>xpos</key>
+			<integer>140</integer>
+			<key>ypos</key>
+			<integer>360</integer>
 		</dict>
 		<key>417EDFE4-EEA3-4586-BACB-72B5CD1488FA</key>
 		<dict>
+			<key>xpos</key>
+			<integer>140</integer>
 			<key>ypos</key>
-			<real>110</real>
+			<integer>40</integer>
 		</dict>
 		<key>4765E242-93FF-46C4-87F9-224040053329</key>
 		<dict>
+			<key>xpos</key>
+			<integer>140</integer>
 			<key>ypos</key>
-			<real>240</real>
+			<integer>200</integer>
 		</dict>
 		<key>66C33713-DA10-4119-A3C8-750DB7D93EAA</key>
 		<dict>
+			<key>xpos</key>
+			<integer>700</integer>
 			<key>ypos</key>
-			<real>160</real>
+			<integer>220</integer>
 		</dict>
 	</dict>
 	<key>webaddress</key>
-	<string>https://github.com/teake/ainspire</string>
+	<string>https://github.com/TuahZh/adsinspire</string>
 </dict>
 </plist>
