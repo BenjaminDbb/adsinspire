@@ -13,7 +13,7 @@ import optparse
 import logging
 
 __version__ = "0.1.2"
-APIURL = "http://inspirehep.net/search?" 
+APIURL = "http://old.inspirehep.net/search?" 
 logging.basicConfig()
 log = logging.getLogger("pyinspire")
  

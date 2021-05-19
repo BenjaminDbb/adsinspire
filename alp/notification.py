@@ -16,9 +16,9 @@ class Notification(object):
     def notify(self, title, subtitle, text, info=None):
         v, _, _ = platform.mac_ver()
         v = float('.'.join(v.split('.')[:2]))
-        if v < 10.8:
-            core.log("Notification failed: OS version %s < 10.8." % v)
-            return
+        # if v < 10.8:
+        #     core.log("Notification failed: OS version %s < 10.8." % v)
+        #     return
 
         app = NSApplication.sharedApplication()
 
